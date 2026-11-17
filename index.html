@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#171a17">
@@ -74,5 +76,16 @@
     <form id="inquiryForm" class="inquiry-form"><label for="customerName">Your name</label><input id="customerName" name="name" placeholder="Your name" required maxlength="80"><label for="customerContact">Your email or contact</label><input id="customerContact" name="contact" placeholder="Email / phone / social handle" required maxlength="120"><label for="customerNotes">Message (optional)</label><textarea id="customerNotes" name="notes" rows="3" maxlength="500" placeholder="Any questions or color preferences?"></textarea><button class="btn btn-dark full-width" type="submit">Send inquiry by email ↗</button><p class="form-hint">This opens your email app with your order details. No payment is collected here.</p></form>
   </aside>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>
+  if (window.Telegram && window.Telegram.WebApp) {
+    const tg = window.Telegram.WebApp;
+
+    tg.ready();
+    tg.expand();
+
+    document.body.classList.add("telegram-mini-app");
+  }
+</script>
+
 </body>
 </html>
