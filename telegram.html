@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#111111">
+    <title>MENTEN | Telegram Shop</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+            background: #f5f5f2;
+            color: #171717;
+        }
+
+        header {
+            background: #171717;
+            color: white;
+            padding: 22px 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand {
+            font-size: 27px;
+            font-weight: 900;
+            letter-spacing: 2px;
+        }
+
+        button {
+            cursor: pointer;
+            font: inherit;
+        }
+
+        .bag-btn,
+        .primary {
+            background: #171717;
+            color: white;
+            border: 0;
+            padding: 13px 16px;
+            border-radius: 12px;
+            font-weight: 700;
+        }
+
+        .bag-btn {
+            background: white;
+            color: #171717;
+        }
+
+        .intro {
+            padding: 24px 18px 12px;
+        }
+
+        .intro h1 {
+            font-size: 32px;
+            margin: 8px 0;
+        }
+
+        .intro p,
+        .muted {
+            color: #777;
+            line-height: 1.5;
+        }
+
+        .filters {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding: 12px 18px;
+        }
+
+        .filter {
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            background: white;
+            padding: 10px 14px;
+            white-space: nowrap;
+        }
+
+        .filter.active {
+            background: #171717;
+            color: white;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+            padding: 12px 14px 100px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .card img {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            object-fit: cover;
+            background: #eee;
+        }
+
+        .info {
+            padding: 12px;
+        }
+
+        .info h3 {
+            font-size: 14px;
+            margin: 0 0 7px;
+        }
+
+        .info small {
+            color: #777;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        select,
+        input,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 9px;
+            background: white;
+            font: inherit;
+            margin: 6px 0 10px;
+        }
+
+        .add {
+            width: 100%;
+            background: #171717;
+            color: white;
+            border: 0;
+            border-radius: 9px;
+            padding: 11px 6px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .bottom {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 12px 16px;
+            background: white;
+            border-top: 1px solid #ddd;
+            z-index: 5;
+        }
+
+        .bottom button {
+            width: 100%;
+        }
+
+        .panel {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: #f5f5f2;
+            z-index: 10;
+            overflow-y: auto;
+            padding: 20px 18px 35px;
+        }
+
+        .panel.open {
+            display: block;
+        }
+
+        .panel-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .close {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 9px;
+            padding: 10px 14px;
+        }
+
+        .cart-item {
+            background: white;
+            border-radius: 12px;
+            padding: 14px;
+            margin: 12px 0;
+        }
+
+        .cart-item strong {
+            display: block;
+        }
+
+        .qty {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .qty button {
+            padding: 7px 12px;
+            background: #eee;
+            border: 0;
+            border-radius: 7px;
+        }
+
+        .checkout {
+            background: white;
+            border-radius: 14px;
+            padding: 16px;
+            margin-top: 20px;
+        }
+
+        .checkout label {
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .checkout .primary {
+            width: 100%;
+        }
+
+        .notice {
+            font-size: 12px;
+            color: #777;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div class="brand">MENTEN.</div>
+        <button class="bag-btn" onclick="openCart()">
+            Bag (<span id="count">0</span>)
+        </button>
+    </header>
+
+    <section class="intro">
+        <small>MENTEN ORIGINALS</small>
+        <h1>Find your fit.</h1>
+        <p>Choose your favorite style and size. Build your bag and send an order inquiry.</p>
+    </section>
+
+    <div class="filters">
+        <button class="filter active" onclick="filterProducts('all',this)">All</button>
+        <button class="filter" onclick="filterProducts('slides',this)">Slides</button>
+        <button class="filter" onclick="filterProducts('clogs',this)">Clogs</button>
+        <button class="filter" onclick="filterProducts('flipflops',this)">Flip-flops</button>
+    </div>
+
+    <div class="grid" id="grid"></div>
+
+    <div class="bottom">
+        <button class="primary" onclick="openCart()">
+            View Shopping Bag (<span id="bottomCount">0</span>)
+        </button>
+    </div>
+
+    <div class="panel" id="cartPanel">
+        <div class="panel-top">
+            <h2>Your Bag</h2>
+            <button class="close" onclick="closeCart()">Close ✕</button>
+        </div>
+
+        <div id="cartItems"></div>
+
+        <form class="checkout" id="checkoutForm">
+            <h2>Checkout Inquiry</h2>
+            <p class="muted">Submit your product selections to MENTEN for confirmation.</p>
+
+            <label for="customerName">Your name</label>
+            <input id="customerName" required maxlength="80" placeholder="Full name">
+
+            <label for="customerContact">Email or Telegram username</label>
+            <input id="customerContact" required maxlength="120" placeholder="How can we reach you?">
+
+            <label for="customerNotes">Notes (optional)</label>
+            <textarea id="customerNotes" maxlength="500" rows="3"
+                placeholder="Color, delivery questions, etc."></textarea>
+
+            <button type="submit" class="primary">Prepare Order Email</button>
+            <p class="notice">No payment is taken. Your email app will open with an order inquiry. You must press Send
+                to submit it.</p>
+        </form>
+    </div>
+
+    <script>
+        const tg = window.Telegram?.WebApp;
+        if (tg) {
+            tg.ready();
+            tg.expand();
+        }
+
+        const products = [
+            { id: 1, name: "MENTEN Don't Stop", category: "slides", image: "images/image.png" },
+            { id: 2, name: "MENTEN Color Duo", category: "slides", image: "images/product-2.jpg" },
+            { id: 3, name: "MENTEN Pink Slides", category: "slides", image: "images/product-7.jpg" },
+            { id: 4, name: "MENTEN Classic Black", category: "slides", image: "images/product-1.jpg" },
+            { id: 5, name: "MENTEN Clog Pink", category: "clogs", image: "images/product-0.jpg" },
+            { id: 6, name: "MENTEN Clog Charcoal", category: "clogs", image: "images/product-6.jpg" },
+            { id: 7, name: "MENTEN Flip-Flops", category: "flipflops", image: "images/product-9.jpg" },
+            { id: 8, name: "MENTEN Signature", category: "slides", image: "images/product-3.jpg" }
+        ];
+
+        const sizes = ["EU 36", "EU 37", "EU 38", "EU 39", "EU 40", "EU 41", "EU 42", "EU 43", "EU 44", "EU 45"];
+        const storageKey = "menten-telegram-cart-v1";
+        let cart = [];
+
+        try {
+            const saved = JSON.parse(localStorage.getItem(storageKey) || "[]");
+            if (Array.isArray(saved)) {
+                cart = saved.filter(item =>
+                    products.some(p => p.id === item.id) &&
+                    sizes.includes(item.size) &&
+                    Number.isInteger(item.qty) &&
+                    item.qty > 0 && item.qty <= 30
+                ).slice(0, 30);
+            }
+        } catch (e) {
+            cart = [];
+        }
+
+        function saveCart() {
+            try {
+                localStorage.setItem(storageKey, JSON.stringify(cart));
+            } catch (e) { }
+            updateCount();
+        }
+
+        function updateCount() {
+            const count = cart.reduce((sum, item) => sum + item.qty, 0);
+            document.getElementById("count").textContent = count;
+            document.getElementById("bottomCount").textContent = count;
+        }
+
+        function renderProducts(category = "all") {
+            const grid = document.getElementById("grid");
+            grid.replaceChildren();
+
+            products.filter(p => category === "all" || p.category === category)
+                .forEach(product => {
+                    const card = document.createElement("div");
+                    card.className = "card";
+
+                    const img = document.createElement("img");
+                    img.src = product.image;
+                    img.alt = product.name;
+                    img.loading = "lazy";
+
+                    const info = document.createElement("div");
+                    info.className = "info";
+
+                    const title = document.createElement("h3");
+                    title.textContent = product.name;
+
+                    const note = document.createElement("small");
+                    note.textContent = "Price confirmed by MENTEN";
+
+                    const select = document.createElement("select");
+                    select.setAttribute("aria-label", "Size for " + product.name);
+                    select.add(new Option("Choose size", ""));
+                    sizes.forEach(size => select.add(new Option(size, size)));
+
+                    const button = document.createElement("button");
+                    button.className = "add";
+                    button.textContent = "Add to Cart";
+                    button.onclick = () => addToCart(product.id, select.value);
+
+                    info.append(title, note, select, button);
+                    card.append(img, info);
+                    grid.appendChild(card);
+                });
+        }
+
+        function filterProducts(category, button) {
+            document.querySelectorAll(".filter").forEach(b => b.classList.remove("active"));
+            button.classList.add("active");
+            renderProducts(category);
+        }
+
+        function addToCart(id, size) {
+            if (!size) {
+                alert("Please choose a size first.");
+                return;
+            }
+            const existing = cart.find(item => item.id === id && item.size === size);
+            const total = cart.reduce((sum, item) => sum + item.qty, 0);
+
+            if (total >= 30) {
+                alert("Maximum 30 items per inquiry.");
+                return;
+            }
+
+            if (existing) existing.qty++;
+            else cart.push({ id, size, qty: 1 });
+
+            saveCart();
+            if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred("light");
+            alert("Added to your bag!");
+        }
+
+        function openCart() {
+            renderCart();
+            document.getElementById("cartPanel").classList.add("open");
+        }
+
+        function closeCart() {
+            document.getElementById("cartPanel").classList.remove("open");
+        }
+
+        function changeQty(index, change) {
+            cart[index].qty += change;
+            if (cart[index].qty <= 0) cart.splice(index, 1);
+            saveCart();
+            renderCart();
+        }
+
+        function renderCart() {
+            const container = document.getElementById("cartItems");
+            container.replaceChildren();
+
+            if (!cart.length) {
+                const empty = document.createElement("p");
+                empty.textContent = "Your bag is empty. Add a pair to get started.";
+                container.appendChild(empty);
+                return;
+            }
+
+            cart.forEach((item, index) => {
+                const product = products.find(p => p.id === item.id);
+                if (!product) return;
+
+                const row = document.createElement("div");
+                row.className = "cart-item";
+
+                const name = document.createElement("strong");
+                name.textContent = product.name;
+
+                const size = document.createElement("p");
+                size.textContent = "Size: " + item.size;
+
+                const controls = document.createElement("div");
+                controls.className = "qty";
+
+                const minus = document.createElement("button");
+                minus.textContent = "−";
+                minus.onclick = () => changeQty(index, -1);
+
+                const number = document.createElement("span");
+                number.textContent = item.qty;
+
+                const plus = document.createElement("button");
+                plus.textContent = "+";
+                plus.disabled = cart.reduce((sum, i) => sum + i.qty, 0) >= 30;
+                plus.onclick = () => changeQty(index, 1);
+
+                controls.append(minus, number, plus);
+                row.append(name, size, controls);
+                container.appendChild(row);
+            });
+        }
+
+        document.getElementById("checkoutForm").addEventListener("submit", event => {
+            event.preventDefault();
+
+            if (!cart.length) {
+                alert("Please add a product first.");
+                return;
+            }
+
+            const name = document.getElementById("customerName").value.trim();
+            const contact = document.getElementById("customerContact").value.trim();
+            const notes = document.getElementById("customerNotes").value.trim();
+
+            if (!name || !contact) return;
+
+            const items = cart.map(item => {
+                const product = products.find(p => p.id === item.id);
+                return `${product.name} | ${item.size} | Qty: ${item.qty}`;
+            }).join("\n");
+
+            const message = [
+                "Hello MENTEN,",
+                "",
+                "I would like to inquire about:",
+                items,
+                "",
+                "Name: " + name,
+                "Contact: " + contact,
+                "Notes: " + (notes || "None"),
+                "",
+                "Please confirm prices, stock, shipping, and payment options."
+            ].join("\n");
+
+            const url = "mailto:sivphengphann@gmail.com?subject=" +
+                encodeURIComponent("MENTEN Telegram Shop Inquiry") +
+                "&body=" + encodeURIComponent(message);
+
+            window.location.href = url;
+            alert("Please send the prepared email in your email app.");
+        });
+
+        renderProducts();
+        updateCount();
+    </script>
+</body>
+
+</html>
