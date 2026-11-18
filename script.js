@@ -6,7 +6,7 @@
 // =====================================================
 
 const products = [
-  { id: 1, name: "MENTEN Don't Stop", category: "slides", image: "images/product-10.jpg", description: "Bold black slides with signature MENTEN graphics.", tag: "POPULAR" },
+  { id: 1, name: "MENTEN Don't Stop", category: "slides", image: "images/image.png", description: "Bold black slides with signature MENTEN graphics.", tag: "POPULAR" },
   { id: 2, name: "MENTEN Color Duo", category: "slides", image: "images/product-2.jpg", description: "A bright two-color look that stands out.", tag: "COLOR DROP" },
   { id: 3, name: "MENTEN Pink Slides", category: "slides", image: "images/product-7.jpg", description: "Playful pink slides for an everyday outfit.", tag: "FAVORITE" },
   { id: 4, name: "MENTEN Classic Black", category: "slides", image: "images/product-1.jpg", description: "A simple dark colorway with graphic details.", tag: "CLASSIC" },
