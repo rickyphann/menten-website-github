@@ -290,9 +290,8 @@
             <textarea id="customerNotes" maxlength="500" rows="3"
                 placeholder="Color, delivery questions, etc."></textarea>
 
-            <button type="submit" class="primary">Prepare Order Email</button>
-            <p class="notice">No payment is taken. Your email app will open with an order inquiry. You must press Send
-                to submit it.</p>
+            <button type="submit" class="primary">Send Order to MENTEN</button>
+            <p class="notice">No payment is taken. Submit your inquiry inside Telegram; MENTEN will confirm prices, stock, shipping, and payment options.</p>
         </form>
     </div>
 
@@ -471,10 +470,12 @@
                 container.appendChild(row);
             });
         }
+        const ORDER_API = "https://menten-order0.sivphengphann.workers.dev";
+        let sendingOrder = false;
 
-        document.getElementById("checkoutForm").addEventListener("submit", event => {
+        document.getElementById("checkoutForm").addEventListener("submit", async event => {
             event.preventDefault();
-
+            if (sendingOrder) return;
             if (!cart.length) {
                 alert("Please add a product first.");
                 return;
@@ -483,38 +484,61 @@
             const name = document.getElementById("customerName").value.trim();
             const contact = document.getElementById("customerContact").value.trim();
             const notes = document.getElementById("customerNotes").value.trim();
+            if (!name || !contact) {
+                alert("Please enter your name and contact information.");
+                return;
+            }
+            if (!tg?.initData) {
+                alert("Please open MENTEN Shop using the button inside Telegram to send an order.");
+                return;
+            }
 
-            if (!name || !contact) return;
+            const form = event.currentTarget;
+            const submitButton = form.querySelector('button[type="submit"]');
+            sendingOrder = true;
+            submitButton.disabled = true;
+            const originalText = submitButton.textContent;
+            submitButton.textContent = "Sending order...";
 
-            const items = cart.map(item => {
-                const product = products.find(p => p.id === item.id);
-                return `${product.name} | ${item.size} | Qty: ${item.qty}`;
-            }).join("\n");
+            try {
+                const response = await fetch(ORDER_API, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        initData: tg.initData,
+                        name,
+                        contact,
+                        notes,
+                        cart: cart.map(item => ({
+                            id: item.id,
+                            size: item.size,
+                            qty: item.qty
+                        }))
+                    })
+                });
+                const result = await response.json();
+                if (!response.ok || !result.success) {
+                    throw new Error(result.error || "Could not send your order.");
+                }
 
-            const message = [
-                "Hello MENTEN,",
-                "",
-                "I would like to inquire about:",
-                items,
-                "",
-                "Name: " + name,
-                "Contact: " + contact,
-                "Notes: " + (notes || "None"),
-                "",
-                "Please confirm prices, stock, shipping, and payment options."
-            ].join("\n");
-
-            const url = "mailto:sivphengphann@gmail.com?subject=" +
-                encodeURIComponent("MENTEN Telegram Shop Inquiry") +
-                "&body=" + encodeURIComponent(message);
-
-            window.location.href = url;
-            alert("Please send the prepared email in your email app.");
+                cart = [];
+                saveCart();
+                renderCart();
+                form.reset();
+                alert("Your MENTEN order inquiry was sent! We will confirm stock, price, and delivery.");
+            } catch (error) {
+                alert("Order not confirmed: " + error.message + ". Please contact MENTEN if you are unsure whether it arrived.");
+            } finally {
+                sendingOrder = false;
+                submitButton.disabled = false;
+                submitButton.textContent = originalText;
+            }
         });
 
         renderProducts();
         updateCount();
     </script>
+
 </body>
 
 </html>
